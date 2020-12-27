@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>JQuery To-do</title>
+    <meta name="description" content="A simple to-do app interface in vanilla Javascript and HTML. No cosmetics.">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+    <div id="inputArea">
+        <label for="task">Task:</label>
+        <input type="text" name="task" value="" id="taskTextBox">
+        <button id="taskAddBtn">Add</button>
+    </div>
+    <div id="listArea">
+        <h3 id="taskListHeading">You have <span id="counter"> </span> tasks:</h3>
+        <ul id = "taskList">
+            <!-- tasks will appear here -->
+        </ul>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            var taskIdentifier = taskCounter(); //assign current task counter value to taskIdentifier to be used to uniquely identify a tasks and will be assigned to them upon creation 
+            $('#counter').text(taskIdentifier); //print the current number of tasks
+            //add click eventlistener to add button
+            $('#taskAddBtn').on('click', function(){
+                if($('#taskTextBox').val() != ""){ // check if the text box is empty
+                    addTask($('#taskTextBox').val()); //call the addTask button and pass the taskTextBox's value
+                }
+                
+            });
+
+            //add enter key press event to textbox to add task
+            $('#taskTextBox').on('keyup', function(event){
+                event.preventDefault();
+                if(event.keyCode == 13){ //checking if the keypressed was Enter key
+                    $('#taskAddBtn').click(); // call the taskAddBtn's click event
+                }
+            });
+
+            //function to see how many tasks are in the list
+            function taskCounter(){
+                if($('#taskList').children().length != 0){
+                    return $('#taskList').children().length; // the count of chilren (li) on taskList
+                }
+                else return 0;
+            }
+
+            // function to remove the task, takes in taskId
+            function removeTask(taskId){
+                $('li#'+taskId).remove(); // remove the li element of the concerned task
+                $('#counter').text(taskCounter()); // update the task counter after removing task
+            }
+
+            //function to add task to the list
+            function addTask(taskName){
+                taskIdentifier++;
+                var taskUniqueId = taskName.replace(/ /g, "_") + String(taskIdentifier);
+                var taskLi = $('<li>').attr('id', taskUniqueId); // create an li element and assign it attribute id by passing taskName
+                var taskCheckbox = $('<input>'); // create a new input (checkbox) element
+                taskCheckbox.attr({ // assign attributes to the input element
+                    "type": "checkbox",
+                    "name": taskUniqueId,
+                    "value": taskName,
+                    "id": taskUniqueId
+                });
+                taskCheckbox.appendTo(taskLi); // append the checkbox to li element
+                taskCheckbox.on('change', function(){
+                    removeTask(this.id);
+                });
+                var label = $('<label>'); // create new label element for the checkbox
+                label.attr({ // assign attributes to the label element
+                    "for":taskUniqueId,
+                    "id": "labelFor" + taskUniqueId,
+                    "value": taskName
+                });
+                label.text(taskName); // Add text to label element
+                label.appendTo(taskLi); // append the label to li element
+                $('#taskList').append(taskLi); //append an li to the taskList ul, use the passed taskName string as innerHTML
+                $('#counter').text(taskCounter()); //update the task counter at the end of adding new task
+                $('#taskTextBox').val(""); // empty the text box after adding new task
+            }
+
+        });
+        
+    </script>
+</body>
+</html>
